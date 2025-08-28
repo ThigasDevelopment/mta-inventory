@@ -21,6 +21,32 @@ function Inventory:constructor ()
 	return self;
 end
 
+function Inventory:sync (to, from)
+	if (not isElement (to)) then
+		return false;
+	end
+
+	local elemType = getElementType (to);
+	if (elemType ~= 'player') then
+		return false;
+	end
+
+	if (not isElement (from)) then
+		return false;
+	end
+
+	local ownerId = getOwnerId (from);
+	if (not ownerId) then
+		return false;
+	end
+	ownerId = tostring (ownerId);
+
+	local inventory = call ('database', 'get', 'all', ownerId);
+	-- call client's side sending: inventory.
+
+	return true;
+end
+
 -- event's resource's
 addEventHandler (EVENT_NAME .. ':loaded', resourceRoot,
 	function ()
