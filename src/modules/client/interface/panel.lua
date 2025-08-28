@@ -69,6 +69,8 @@ function Panel:close ()
 
 	if (self.events['__state']) then
 		removeEventHandler ('onClientRender', root, self.events['__onClientRender__']);
+
+		self.events['__state'] = false;
 	end
 	return true;
 end
