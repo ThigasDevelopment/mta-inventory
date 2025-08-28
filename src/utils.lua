@@ -11,7 +11,7 @@ VALID_ELEMENTS = {
 	['vehicle'] = true,
 };
 
-function getOnwerId (owner)
+function getOwnerId (owner)
 	if (not isElement (owner)) then
 		return false;
 	end
