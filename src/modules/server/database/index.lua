@@ -62,6 +62,22 @@ function Database:load ()
 		self.data['items'] = { };
 	end
 
+	dbExec (self.connection, [[
+		CREATE TABLE IF NOT EXISTS `inventory` (
+			`id` INTEGER PRIMARY KEY AUTOINCREMENT,
+			`owner` TEXT UNIQUE NOT NULL,
+
+			`slots` INTEGER NOT NULL DEFAULT 20,
+			`weight` INTEGER NOT NULL DEFAULT 100,
+
+			`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		);
+	]]);
+
+	if (not self.data['inventory']) then
+		self.data['inventory'] = { };
+	end
+
 	-- load data's from schema.
 	dbQuery (
 		function (qh)
@@ -87,6 +103,31 @@ function Database:load ()
 			end
 			return true;
 		end, self.connection, 'SELECT * FROM `items`;'
+	);
+
+	dbQuery (
+		function (qh)
+			local result = dbPoll (qh, -1);
+			if (#result < 1) then
+				return false;
+			end
+
+			for _, row in pairs (result) do
+				if (not self.data['inventory'][row.owner]) then
+					self.data['inventory'][row.owner] = { };
+				end
+
+				self.data['inventory'][row.owner] = {
+					id = row.id,
+
+					slots = row.slots,
+					weight = row.weight,
+
+					created_at = row.created_at,
+				};
+			end
+			return true;
+		end, self.connection, 'SELECT * FROM `inventory`;'
 	);
 
 	return true;
