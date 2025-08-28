@@ -143,16 +143,16 @@ function Database:get (schema, ...)
 		return false;
 	end
 
-	if (schema == 'items') then
-		local ownerId = arg[1];
-		if (type (ownerId) ~= 'string') then
-			return false;
-		end
-
-		return (self.data[schema][ownerId] or false);
+	local ownerId = arg[1];
+	if (type (ownerId) ~= 'string') then
+		return false;
 	end
 
-	return false;
+	if (schema == 'all') then
+		local items, inventory = (self.data['items'][ownerId] or { }), (self.data['inventory'][ownerId] or { });
+		return { items = items, inventory = inventory };
+	end
+	return (self.data[schema][ownerId] or false);
 end
 
 -- event's resource's
