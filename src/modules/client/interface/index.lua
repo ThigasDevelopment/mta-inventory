@@ -19,7 +19,7 @@ function UI:constructor ()
 	register ('ui', execute);
 
 	self.w, self.h = guiGetScreenSize ();
-	self.scale = math.max (0.75, math.min (1.0, self.h / 1080));
+	self.scale = math.max (0.85, self.h / 1080);
 
 	return self;
 end
