@@ -92,6 +92,28 @@ function Database:load ()
 	return true;
 end
 
+function Database:get (schema, ...)
+	if (not isElement (self.connection)) then
+		return false;
+	end
+
+	local schemaType = type (schema);
+	if (schemaType ~= 'string') then
+		return false;
+	end
+
+	if (schema == 'items') then
+		local ownerId = arg[1];
+		if (type (ownerId) ~= 'string') then
+			return false;
+		end
+
+		return (self.data[schema][ownerId] or false);
+	end
+
+	return false;
+end
+
 -- event's resource's
 addEventHandler (EVENT_NAME .. ':loaded', resourceRoot,
 	function ()
