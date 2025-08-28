@@ -42,7 +42,7 @@ function Inventory:sync (to, from)
 	ownerId = tostring (ownerId);
 
 	local inventory = call ('database', 'get', 'all', ownerId);
-	-- call client's side sending: inventory.
+	call ('request', 'send', to, 'inventory', 'sync', inventory);
 
 	return true;
 end
