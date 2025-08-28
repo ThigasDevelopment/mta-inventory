@@ -18,7 +18,24 @@ end
 function Database:constructor ()
 	register ('database', execute);
 
+	self.data, self.connection = { }, false;
+	self:connect ();
+
 	return self;
+end
+
+function Database:connect ()
+	if (isElement (self.connection)) then
+		return false;
+	end
+
+	self.connection = dbConnect ('sqlite', '__database__/database.db');
+	if (not isElement (self.connection)) then
+		return false;
+	end
+
+	self:load ();
+	return true;
 end
 
 -- event's resource's
