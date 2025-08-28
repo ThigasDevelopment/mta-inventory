@@ -8,6 +8,7 @@
 	<script src = 'src/utils.lua' type = 'shared' cache = 'false'/>
 
 	<script src = 'src/models/index.lua' type = 'shared' cache = 'false'/>
+	<script src = 'src/models/request.lua' type = 'shared' cache = 'false'/>
 	<!-- SCRIPT's MODULE's -->
 	<script src = 'src/modules/server/**/*.lua'/>
 	<script src = 'src/modules/client/**/*.lua' type = 'client' cache = 'false'/>
