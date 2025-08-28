@@ -65,7 +65,7 @@ function Database:load ()
 	-- load data's from schema.
 	dbQuery (
 		function (qh)
-			local result = qh:poll (-1);
+			local result = dbPoll (qh, -1);
 			if (#result < 1) then
 				return false;
 			end
