@@ -61,6 +61,8 @@ function Request:response (module, method, ...)
 	if (not isElement (client)) then
 		return false;
 	end
+
+	self:send ('', '', client);
 	return call (module, method, client, ...);
 end
 
