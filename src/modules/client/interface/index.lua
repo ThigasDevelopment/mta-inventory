@@ -18,7 +18,19 @@ end
 function UI:constructor ()
 	register ('ui', execute);
 
+	self.w, self.h = guiGetScreenSize ();
+	self.scale = math.max (0.75, math.min (1.0, self.h / 1080));
+
 	return self;
+end
+
+function UI:resp (num)
+	num = tonumber (num);
+	if (not num) then
+		return 0;
+	end
+
+	return (num * self.scale);
 end
 
 -- event's resource's
@@ -27,3 +39,8 @@ addEventHandler (EVENT_NAME .. ':loaded', resourceRoot,
 		return UI:constructor ();
 	end
 );
+
+-- export's resource's
+function resp (num)
+	return UI:resp (num);
+end
