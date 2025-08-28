@@ -1,6 +1,39 @@
 -- config's resource's
 CONFIG, ITEMS = getConfig (), getItems ();
 
+-- util's resource's
+VALID_ELEMENTS = {
+	['ped'] = true,
+
+	['player'] = true,
+	['object'] = true,
+
+	['vehicle'] = true,
+};
+
+function getOnwerId (owner)
+	if (not isElement (owner)) then
+		return false;
+	end
+
+	local elemType = getElementType (owner);
+	if (not VALID_ELEMENTS[elemType]) then
+		return false;
+	end
+
+	if (elemType == 'player') then
+		local account = getPlayerAccount (owner);
+		if (not account) then
+			return false;
+		end
+
+		local name = getAccountName (account);
+		return name;
+	end
+	
+	return false;
+end
+
 -- lib's resource's
 function table.size (t)
 	local size = 0;
