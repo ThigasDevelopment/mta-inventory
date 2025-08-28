@@ -8,6 +8,9 @@
 	<script src = 'src/utils.lua' type = 'shared' cache = 'false'/>
 
 	<script src = 'src/models/index.lua' type = 'shared' cache = 'false'/>
+	<!-- SCRIPT's MODULE's -->
+	<script src = 'src/modules/server/**/*.lua'/>
+	<script src = 'src/modules/client/**/*.lua' type = 'client' cache = 'false'/>
 	<!-- VERSION's RESOURCE's -->
 	<min_mta_version server = '1.6.0' client = '1.6.0'/>
 	<!-- EXPORT's RESOURCE's -->
