@@ -16,4 +16,6 @@
 	<!-- EXPORT's RESOURCE's -->
 	<export function = 'getItems' type = 'shared'/>
 	<export function = 'getConfig' type = 'shared'/>
+
+	<export function = 'getConnection'/>
 </dracon-dev>
