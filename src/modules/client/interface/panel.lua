@@ -21,6 +21,34 @@ function Panel:constructor ()
 	local UI = call ('ui');
 	self.ui = UI;
 
+	local cursor = {
+		x = 0,
+		y = 0,
+
+		update = function (self)
+			if (not isCursorShowing ()) then
+				return false;
+			end
+
+			local cx, cy = getCursorPosition ();
+			self.x, self.y = (cx * self.ui.w), (cy * self.ui.h);
+
+			return true;
+		end,
+
+		onElement = function (self, x, y, w, h)
+			if (not isCursorShowing ()) then
+				return false;
+			end
+
+			return (
+				self.x >= x and self.x <= (x + w) and
+				self.y >= y and self.y <= (y + h)
+			);
+		end,
+	};
+	self.cursor = cursor;
+
 	self.hover, self.state = false, false;
 
 	self.events = {
@@ -58,6 +86,7 @@ function Panel:onRender ()
 	end
 
 	local alpha = interpolateBetween (self.animation.from, 0, 0, self.animation.to, 0, 0, progress, 'Linear');
+	self.cursor:update ();
 
 	return true;
 end
@@ -105,3 +134,8 @@ addEventHandler (EVENT_NAME .. ':loaded', resourceRoot,
 		return Panel:constructor ();
 	end
 );
+
+-- export's resource's
+function isCursorOnElement (x, y, w, h)
+	return self.cursor:onElement (x, y, w, h);
+end
