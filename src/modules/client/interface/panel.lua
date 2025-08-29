@@ -81,6 +81,10 @@ function Panel:constructor ()
 	self.events = {
 		['__state'] = false,
 
+		['__onClientKey__'] = function (key, press)
+			return self:onKey (key, press);
+		end,
+
 		['__onClientRender__'] = function ()
 			return self:onRender ();
 		end,
@@ -107,6 +111,39 @@ function Panel:constructor ()
 	return self;
 end
 
+function Panel:onKey (key, press)
+	local scroll = self.target.elements.scroll.element;
+	if (not scroll) then
+		return false;
+	end
+
+	key = key:lower ();
+	if (not press) then
+		return false;
+	end
+
+	local avaliableKeys = {
+		['mouse_wheel_up'] = true,
+		['mouse_wheel_down'] = true,
+	};
+	if (not avaliableKeys[key]) then
+		return false;
+	end
+
+	local state = self.target.can_scroll;
+	if (not state) then
+		return false;
+	end
+
+	local current = scroll:get ();
+	if (key == 'mouse_wheel_up') then
+		scroll:set (math.max (0, (current - self.target.update)));
+	elseif (key == 'mouse_wheel_down') then
+		scroll:set (math.min (self.target.total, (current + self.target.update)));
+	end
+	return true;
+end
+
 function Panel:onRender ()
 	local tickNow = getTickCount ();
 	self.hover = false;
@@ -130,9 +167,28 @@ function Panel:onRender ()
 		return false;
 	end
 
+	local inRenderTarget = isCursorOnElement (self.ui.positions['target'].x, self.ui.positions['target'].y, self.ui.positions['target'].w, self.ui.positions['target'].h);
+	dxDrawImage (self.ui.positions['target'].x, self.ui.positions['target'].y, self.ui.positions['target'].w, self.ui.positions['target'].h, target, 0, 0, 0, tocolor (255, 255, 255, 255 * alpha), false);
+
 	local scroll = self.target.elements.scroll.element;
 	if (scroll) then
-		-- scroll:render ();
+		local current = scroll:get ();
+		if (current ~= self.target.offset) then
+			self:onUpdate (current, false);
+		end
+
+		scroll:draw (self.ui.positions['scroll'].x, self.ui.positions['scroll'].y, {
+			effect = tocolor (241, 241, 241, 255 * alpha),
+
+			default = tocolor (241, 241, 241, 127 * alpha),
+			background = tocolor (255, 255, 255, 12 * alpha),
+		}, false);
+
+		self.target.can_scroll = false;
+	end
+
+	if (inRenderTarget) then
+		self.target.can_scroll = true;
 	end
 
 	return true;
@@ -150,7 +206,19 @@ function Panel:onUpdate (current, index)
 	dxSetRenderTarget (target, true);
 		dxSetBlendMode ('modulate_add');
 			local function drawComponents ()
+				dxDrawRectangle (0, 0, self.target.elements.target.size.w, self.target.elements.target.size.h, tocolor (255, 0, 0, 55), false);
 
+				local slots = 40;
+				for i = 1, slots do
+					local col, row = ((i - 1) % 5), math.floor ((i - 1) / 5);
+					dxDrawRectangle (0 + (65 + 10) * col, 0 + (65 + 10) * row - current, 65, 65, tocolor (255, 255, 255, 255), false);
+					dxDrawText (i, 0 + (65 + 10) * col, 0 + (65 + 10) * row - current, 65, 65, tocolor (0, 0, 0, 255), 1, 'default', 'center', 'center');
+
+					if (i >= slots) then
+						posY = (posY + (65 + 10) * (row + 1));
+					end
+				end
+				posY = (posY - 10);
 			end
 			drawComponents ();
 		dxSetBlendMode ('blend');
@@ -164,7 +232,14 @@ function Panel:onUpdate (current, index)
 	end
 
 	local sizeW, sizeH = self.target.elements.scroll.size.w, self.target.elements.scroll.size.h;
-	-- self.target.elements.scroll.element = Scrollbar.new (sizeW, sizeH, (self.target.total / self.target.update), 0, self.target.total);
+
+	local ratio = (sizeH - resp (self.target.total));
+	if (ratio < resp (self.target.update)) then
+		ratio = resp (self.target.update);
+	elseif (ratio > sizeH) then
+		ratio = sizeH;
+	end
+	self.target.elements.scroll.element = Scrollbar.new (sizeW, sizeH, ratio, 0, self.target.total);
 
 	return true;
 end
@@ -185,8 +260,9 @@ function Panel:close ()
 	end
 
 	if (self.events['__state']) then
+		removeEventHandler ('onClientKey', root, self.events['__onClientKey__']);
 		removeEventHandler ('onClientRender', root, self.events['__onClientRender__']);
-		removeEventHandler ('onClientRender', root, self.events['__onClientRestore__']);
+		removeEventHandler ('onClientRestore', root, self.events['__onClientRestore__']);
 
 		self.events['__state'] = false;
 	end
@@ -221,8 +297,9 @@ function Panel:toggle (state)
 
 	if (self.state) then
 		if (not self.events['__state']) then
+			addEventHandler ('onClientKey', root, self.events['__onClientKey__']);
 			addEventHandler ('onClientRender', root, self.events['__onClientRender__']);
-			addEventHandler ('onClientRender', root, self.events['__onClientRestore__']);
+			addEventHandler ('onClientRestore', root, self.events['__onClientRestore__']);
 
 			self.events['__state'] = true;
 		end
@@ -233,9 +310,11 @@ function Panel:toggle (state)
 			end
 
 			local sizeW, sizeH = self.target.elements.target.size.w, self.target.elements.target.size.h;
-			self.target.elements.target.element = dxCreateRenderTarget (sizeW, sizeH);
+			self.target.elements.target.element = dxCreateRenderTarget (sizeW, sizeH, true);
 
 			self.target.total, self.target.offset = 0, 0;
+
+			self:onUpdate (self.target.offset, false);
 			return true;
 		end
 		createRenderTarget ();

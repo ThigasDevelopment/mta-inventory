@@ -73,6 +73,19 @@ function UI:constructor ()
 		h = resp (44),
 	};
 
+	self.positions['target'] = {
+		x = (self.positions['background'].x + resp (12)),
+		y = (self.positions['background'].y + resp (57)),
+
+		w = resp (367),
+		h = resp (390),
+	};
+
+	self.positions['scroll'] = {
+		x = (self.positions['target'].x + self.positions['target'].w + resp (8)),
+		y = self.positions['target'].y,
+	};
+
 	return self;
 end
 
