@@ -119,6 +119,9 @@ function Panel:onRender ()
 	local alpha = interpolateBetween (self.animation.from, 0, 0, self.animation.to, 0, 0, progress, 'Linear');
 	self.cursor:update ();
 
+	local x, y, w, h = self.ui.positions['background'].x, self.ui.positions['background'].y, self.ui.positions['background'].w, self.ui.positions['background'].h;
+	dxDrawImage (x, y, w, h, 'assets/images/bg.png', 0, 0, 0, tocolor (255, 255, 255, 255 * alpha), false);
+
 	local target = self.target.elements.target.element;
 	if (not isElement (target)) then
 		return false;
