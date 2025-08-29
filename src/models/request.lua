@@ -28,6 +28,8 @@ function Request:constructor ()
 	return self;
 end
 
+local count = 0;
+
 function Request:send (module, method, ...)
 	local isClient = (EVENT_SIDE == 'onClient');
 	if (isClient) then
@@ -39,13 +41,18 @@ function Request:send (module, method, ...)
 		return triggerServerEvent (EVENT_NAME .. ':request', resourceRoot, module, method, ...);
 	end
 
-	local player = arg[1];
+	local arguments = { ... };
+	if (table.size (arguments) < 1) then
+		return false;
+	end
+
+	local player = arguments[1];
 	if (not isElement (player)) then
 		return false;
 	end
 
-	table.remove (arg, 1);
-	return triggerClientEvent (player, EVENT_NAME .. ':request', resourceRoot, module, method, ...);
+	table.remove (arguments, 1);
+	return triggerClientEvent (player, EVENT_NAME .. ':request', resourceRoot, module, method, unpack (arguments));
 end
 
 function Request:response (module, method, ...)
@@ -62,8 +69,8 @@ function Request:response (module, method, ...)
 		return false;
 	end
 
-	self:send ('', '', client);
-	return call (module, method, client, ...);
+	call (module, method, client, ...);
+	return true;
 end
 
 -- event's resource's
