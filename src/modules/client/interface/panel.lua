@@ -137,5 +137,5 @@ addEventHandler (EVENT_NAME .. ':loaded', resourceRoot,
 
 -- export's resource's
 function isCursorOnElement (x, y, w, h)
-	return self.cursor:onElement (x, y, w, h);
+	return call ('panel').cursor:onElement (x, y, w, h);
 end

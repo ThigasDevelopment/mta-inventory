@@ -164,5 +164,5 @@ addEventHandler (EVENT_NAME .. ':loaded', resourceRoot,
 
 -- export's resource's
 function getConnection ()
-	return execute ().connection;
+	return call ('database').connection;
 end

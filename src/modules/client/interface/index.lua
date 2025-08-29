@@ -42,5 +42,5 @@ addEventHandler (EVENT_NAME .. ':loaded', resourceRoot,
 
 -- export's resource's
 function resp (num)
-	return UI:resp (num);
+	return call ('ui', 'resp', num);
 end
