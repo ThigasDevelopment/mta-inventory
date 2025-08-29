@@ -219,7 +219,7 @@ function Panel:onRender ()
 		for _, button in pairs (self.target.positions) do
 			local inButton = isCursorOnElement (self.ui.positions['target'].x + button.position[1], self.ui.positions['target'].y + button.position[2] - self.target.offset, button.position[3], button.position[4]);
 			if (inButton) then
-				local id = button.id;
+				local id, type = button.id, button.type;
 
 				break
 			end
@@ -253,8 +253,9 @@ function Panel:onUpdate (current, index)
 						if ((y - current) > -size and (y - current) < self.target.elements.target.size.h) then
 							local path = (i > inventory.data.slots) and 'assets/images/bg-slot-locked.png' or 'assets/images/bg-slot.png';
 							dxDrawImage (x, y - current, size, size, path, 0, 0, 0, tocolor (241, 241, 241, 95), false);
+							dxDrawText (slot, x, y - current, size, size, tocolor (255, 255, 255, 255), 1, self.ui.fonts['medium']['target']['11'], 'center', 'center');
 
-							self.target.positions[#self.target.positions + 1] = { id = slot, position = { x, y, size, size } };
+							self.target.positions[#self.target.positions + 1] = { id = slot, type = 'slot', position = { x, y, size, size } };
 						end
 					end
 				end
@@ -271,6 +272,8 @@ function Panel:onUpdate (current, index)
 
 					dxDrawImage (103, y + 95, 158, 30, 'assets/images/bg-button.png', 0, 0, 0, tocolor (241, 241, 241, 255), false);
 					dxDrawText ('Adquirir', 103, y + 95, 158, 28, tocolor (29, 29, 29, 255), 1, self.ui.fonts['medium']['target']['11'], 'center', 'center');
+
+					table.insert (self.target.positions, 1, { id = 'buySlots', type = 'button', position = { 103, y + 95 + current, 158, 30 } });
 				end
 			end
 			drawComponents ();
@@ -285,7 +288,7 @@ function Panel:onUpdate (current, index)
 	end
 
 	local sizeW, sizeH = self.target.elements.scroll.size.w, self.target.elements.scroll.size.h;
-	self.target.update = math.max (0, math.min (65, (self.target.total / 65)));
+	self.target.update = math.max (5, math.min (65, (self.target.total / 65)));
 
 	local ratio = (sizeH - resp (self.target.total));
 	ratio = math.max (75, math.min (sizeH, ratio));

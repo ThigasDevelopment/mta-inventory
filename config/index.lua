@@ -4,10 +4,10 @@ local CONFIG = {
 
 	default = {
 		slots = {
-			min = 25,
-			max = 70,
+			min = 20,
+			max = 40,
 		},
-		
+
 		weight = 10.0,
 	},
 
