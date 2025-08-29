@@ -21,7 +21,7 @@ function UI:constructor ()
 	self.w, self.h = guiGetScreenSize ();
 	self.scale = math.max (0.85, self.h / 1080);
 
-	self.fonts = { };
+	self.fonts, self.positions = { }, { };
 
 	self.fonts['medium'] = {
 		['target'] = {
@@ -41,6 +41,14 @@ function UI:constructor ()
 			['12'] = dxCreateFont ('assets/fonts/regular.ttf', resp (12), false),
 			['14'] = dxCreateFont ('assets/fonts/regular.ttf', resp (14), false),
 		},
+	};
+
+	self.positions['background'] = {
+		x = (self.w - resp (400)) / 2,
+		y = (self.h - resp (460)) / 2,
+
+		w = resp (400),
+		h = resp (460),
 	};
 
 	return self;
