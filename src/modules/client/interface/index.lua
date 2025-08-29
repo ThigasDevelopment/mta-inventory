@@ -14,6 +14,12 @@ local function execute (method, ...)
 	return method (UI, ...);
 end
 
+local _dxDrawText = dxDrawText;
+function dxDrawText (text, x, y, w, h, ...)
+	w, h = (w or 0), (h or 0);
+	return _dxDrawText (text, x, y, (x + w), (y + h), ...);
+end
+
 -- method's resource's
 function UI:constructor ()
 	register ('ui', execute);
