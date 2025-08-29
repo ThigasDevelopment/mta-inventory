@@ -51,11 +51,42 @@ function Panel:constructor ()
 
 	self.hover, self.state = false, false;
 
+	self.target = {
+		elements = {
+			scroll = {
+				element = false,
+
+				size = {
+					w = resp (4),
+					h = resp (390),
+				},
+			},
+
+			target = {
+				element = false,
+
+				size = {
+					w = 367,
+					h = 390,
+				},
+			},
+		},
+
+		total = 0,
+
+		update = 30,
+		offset = 0,
+	};
+
 	self.events = {
 		['__state'] = false,
 
 		['__onClientRender__'] = function ()
 			return self:onRender ();
+		end,
+
+		['__onClientRestore__'] = function ()
+			return self:onRestore ();
 		end,
 	};
 
@@ -88,7 +119,54 @@ function Panel:onRender ()
 	local alpha = interpolateBetween (self.animation.from, 0, 0, self.animation.to, 0, 0, progress, 'Linear');
 	self.cursor:update ();
 
+	local target = self.target.elements.target.element;
+	if (not isElement (target)) then
+		return false;
+	end
+
+	local scroll = self.target.elements.scroll.element;
+	if (scroll) then
+		-- scroll:render ();
+	end
+
 	return true;
+end
+
+function Panel:onUpdate (current, index)
+	local target = self.target.elements.target.element;
+	if (not isElement (target)) then
+		return false;
+	end
+
+	local posY = 0;
+	current = (current or 0);
+
+	local function drawComponents ()
+
+	end
+	drawComponents ();
+
+	self.target.total, self.target.offset = (posY - self.target.elements.target.size.h), current;
+
+	local scroll = self.target.elements.scroll.element;
+	if (scroll) then
+		return false;
+	end
+
+	local sizeW, sizeH = self.target.elements.scroll.size.w, self.target.elements.scroll.size.h;
+	-- self.target.elements.scroll.element = Scrollbar.new (sizeW, sizeH, (self.target.total / self.target.update), 0, self.target.total);
+
+	return true;
+end
+
+function Panel:onRestore ()
+	local target = self.target.elements.target.element;
+	if (not isElement (target)) then
+		return false;
+	end
+
+	local offset = self.target.offset;
+	return self:onUpdate (offset, false);
 end
 
 function Panel:close ()
@@ -98,9 +176,27 @@ function Panel:close ()
 
 	if (self.events['__state']) then
 		removeEventHandler ('onClientRender', root, self.events['__onClientRender__']);
+		removeEventHandler ('onClientRender', root, self.events['__onClientRestore__']);
 
 		self.events['__state'] = false;
 	end
+
+	local function destroyRenderTarget ()
+		if (isElement (self.target.elements.target.element)) then
+			destroyElement (self.target.elements.target.element);
+		end
+		self.target.elements.target.element = false;
+
+		if (self.target.elements.scroll.element) then
+			self.target.elements.scroll.element:destroy ();
+		end
+		self.target.elements.scroll.element = false;
+
+		self.target.total, self.target.offset = 0, 0;
+		return true;
+	end
+	destroyRenderTarget ();
+
 	return true;
 end
 
@@ -115,9 +211,23 @@ function Panel:toggle (state)
 	if (self.state) then
 		if (not self.events['__state']) then
 			addEventHandler ('onClientRender', root, self.events['__onClientRender__']);
+			addEventHandler ('onClientRender', root, self.events['__onClientRestore__']);
 
 			self.events['__state'] = true;
 		end
+
+		local function createRenderTarget ()
+			if (isElement (self.target.elements.target.element)) then
+				destroyElement (self.target.elements.target.element);
+			end
+
+			local sizeW, sizeH = self.target.elements.target.size.w, self.target.elements.target.size.h;
+			self.target.elements.target.element = dxCreateRenderTarget (sizeW, sizeH);
+
+			self.target.total, self.target.offset = 0, 0;
+			return true;
+		end
+		createRenderTarget ();
 
 		self.animation.from, self.animation.to = 0, 1;
 		self.animation.tick = tickNow;
