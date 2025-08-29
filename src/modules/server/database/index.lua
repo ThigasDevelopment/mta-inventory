@@ -98,7 +98,6 @@ function Database:load ()
 					amount = row.amount,
 
 					data = fromJSON (row.data),
-					created_at = row.created_at,
 				};
 			end
 			return true;
@@ -122,8 +121,6 @@ function Database:load ()
 
 					slots = row.slots,
 					weight = row.weight,
-
-					created_at = row.created_at,
 				};
 			end
 			return true;
@@ -153,6 +150,44 @@ function Database:get (schema, ...)
 		return { items = items, inventory = inventory };
 	end
 	return (self.data[schema][ownerId] or false);
+end
+
+function Database:create (ownerId, callback, ...)
+	if (not isElement (self.connection)) then
+		return false;
+	end
+	
+	local ownerType = type (ownerId);
+	if (ownerType ~= 'string') then
+		return false;
+	end
+
+	local callbackType = type (callback);
+	if (callbackType ~= 'function') then
+		return false;
+	end
+
+	local inventory = self:get ('inventory', ownerId);
+	if (inventory) then
+		return false;
+	end
+
+	return dbQuery (
+		function (qh, ...)
+			local result, rows, id = dbPoll (qh, -1);
+			if (not result) then
+				return callback (false, ownerId, ...);
+			end
+
+			self.data['inventory'][ownerId] = {
+				id = id,
+
+				slots = CONFIG.default.slots,
+				weight = CONFIG.default.weight,
+			};
+			return callback (true, ownerId, ...);
+		end, { ... }, self.connection, 'INSERT INTO `inventory` (owner, slots, weight) VALUES (?, ?, ?);', ownerId, CONFIG.default.slots, CONFIG.default.weight
+	);
 end
 
 -- event's resource's
