@@ -3,7 +3,11 @@ local CONFIG = {
 	key = 'i',
 
 	default = {
-		slots = 25,
+		slots = {
+			min = 25,
+			max = 70,
+		},
+		
 		weight = 10.0,
 	},
 

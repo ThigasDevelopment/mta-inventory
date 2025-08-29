@@ -182,11 +182,11 @@ function Database:create (ownerId, callback, ...)
 			self.data['inventory'][ownerId] = {
 				id = id,
 
-				slots = CONFIG.default.slots,
+				slots = CONFIG.default.slots.min,
 				weight = CONFIG.default.weight,
 			};
 			return callback (true, ownerId, ...);
-		end, { ... }, self.connection, 'INSERT INTO `inventory` (owner, slots, weight) VALUES (?, ?, ?);', ownerId, CONFIG.default.slots, CONFIG.default.weight
+		end, { ... }, self.connection, 'INSERT INTO `inventory` (owner, slots, weight) VALUES (?, ?, ?);', ownerId, CONFIG.default.slots.min, CONFIG.default.weight
 	);
 end
 
