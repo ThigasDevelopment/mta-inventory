@@ -34,7 +34,9 @@ function UI:constructor ()
 			['14'] = dxCreateFont ('assets/fonts/medium.ttf', 14, false),
 		},
 
-		['default'] = { },
+		['default'] = {
+			['13'] = dxCreateFont ('assets/fonts/medium.ttf', resp (13), false),
+		},
 	};
 
 	self.fonts['regular'] = {
@@ -59,18 +61,18 @@ function UI:constructor ()
 
 	self.positions['ball'] = {
 		x = (self.positions['background'].x + resp (12)),
-		y = (self.positions['background'].y + resp (18)),
+		y = (self.positions['background'].y + resp (17)),
 
 		w = resp (12),
 		h = resp (12),
 	};
 
 	self.positions['title'] = {
-		x = (self.positions['ball'].x + resp (18)),
-		y = (self.positions['ball'].y - resp (5)),
+		x = (self.positions['ball'].x + resp (19)),
+		y = self.positions['background'].y,
 
 		w = resp (71),
-		h = self.positions['ball'].w,
+		h = resp (43),
 	};
 
 	self.positions['target'] = {

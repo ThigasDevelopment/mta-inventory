@@ -163,10 +163,11 @@ function Panel:onRender ()
 	self.cursor:update ();
 
 	local x, y, w, h = self.ui.positions['background'].x, self.ui.positions['background'].y, self.ui.positions['background'].w, self.ui.positions['background'].h;
-	dxDrawImage (x, y, w, h, 'assets/images/bg.png', 0, 0, 0, tocolor (255, 255, 255, 255 * alpha), false);
+	dxDrawImage (x, y, w, h, 'assets/images/bg.png', 0, 0, 0, tocolor (19, 19, 19, 255 * alpha), false);
+	dxDrawRectangle (x, y + resp (44), w, 1, tocolor (241, 241, 241, 55 * alpha), false);
 
-	dxDrawImage (self.ui.positions['ball'].x, self.ui.positions['ball'].y, self.ui.positions['ball'].w, self.ui.positions['ball'].h, 'assets/images/ball.png', 0, 0, 0, tocolor (255, 255, 255, 255 * alpha), false);
-	dxDrawText ('Inventário', self.ui.positions['title'].x, self.ui.positions['title'].y, self.ui.positions['title'].w, self.ui.positions['title'].h, tocolor (241, 241, 241, 255 * alpha), 1, self.ui.fonts['regular']['default']['14'], 'left', 'top');
+	dxDrawImage (self.ui.positions['ball'].x, self.ui.positions['ball'].y, self.ui.positions['ball'].w, self.ui.positions['ball'].h, 'assets/images/ball.png', 0, 0, 0, tocolor (241, 241, 241, 225 * alpha), false);
+	dxDrawText ('Inventário', self.ui.positions['title'].x, self.ui.positions['title'].y, self.ui.positions['title'].w, self.ui.positions['title'].h, tocolor (241, 241, 241, 255 * alpha), 1, self.ui.fonts['medium']['default']['13'], 'left', 'center');
 
 	local target = self.target.elements.target.element;
 	if (not isElement (target)) then
@@ -201,7 +202,7 @@ function Panel:onRender ()
 			if (inButton) then
 				local id = button.id;
 
-				break;
+				break
 			end
 		end
 	end
@@ -229,8 +230,7 @@ function Panel:onUpdate (current, index)
 
 					local x, y = 0 + (65 + 10) * col, 0 + (65 + 10) * row;
 					if ((y - current) > -65 and (y - current) < self.target.elements.target.size.h) then
-						dxDrawRectangle (x, y - current, 65, 65, tocolor (255, 255, 255, 255), false);
-						dxDrawText (i, x, y - current, 65, 65, tocolor (0, 0, 0, 255), 1, 'default', 'center', 'center');
+						dxDrawImage (x, y - current, 65, 65, 'assets/images/bg-slot.png', 0, 0, 0, tocolor (255, 255, 255, 95), false);
 
 						self.target.positions[#self.target.positions + 1] = { id = i, position = { x, y, 65, 65 } };
 					end
