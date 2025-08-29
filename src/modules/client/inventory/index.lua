@@ -50,6 +50,26 @@ function Inventory:sync (data)
 	end
 	createSlots ();
 
+	local function getCurrentWeight ()
+		self.total = 0;
+
+		local size = table.size (self.items);
+		if (size < 1) then
+			return false;
+		end
+
+		for slot, data in pairs (self.items) do
+			local config = ITEMS[data.item];
+			if (config) then
+				local current = (data.amount * config.weight);
+				self.total = (self.total + current);
+			end
+		end
+		
+		return true;
+	end
+	getCurrentWeight ();
+
 	local panel = call ('panel');
 	panel:onUpdate (panel.target.offset, false);
 	

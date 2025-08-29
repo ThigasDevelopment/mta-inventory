@@ -31,7 +31,8 @@ function UI:constructor ()
 
 	self.fonts['medium'] = {
 		['target'] = {
-			['14'] = dxCreateFont ('assets/fonts/medium.ttf', 14, false),
+			['11'] = dxCreateFont ('assets/fonts/medium.ttf', 11, false, 'antialiased'),
+			['14'] = dxCreateFont ('assets/fonts/medium.ttf', 14, false, 'antialiased'),
 		},
 
 		['default'] = {
@@ -41,8 +42,7 @@ function UI:constructor ()
 
 	self.fonts['regular'] = {
 		['target'] = {
-			['11'] = dxCreateFont ('assets/fonts/regular.ttf', 11, false),
-			['12'] = dxCreateFont ('assets/fonts/regular.ttf', 11, false, 'antialiased'),
+			['11'] = dxCreateFont ('assets/fonts/regular.ttf', 11, false, 'antialiased'),
 		},
 		
 		['default'] = {

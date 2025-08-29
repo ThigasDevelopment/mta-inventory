@@ -74,7 +74,7 @@ function Panel:constructor ()
 
 		total = 0,
 
-		update = 30,
+		update = 0,
 		offset = 0,
 
 		positions = { },
@@ -269,10 +269,10 @@ function Panel:onUpdate (current, index)
 					dxDrawImage (167, y, 35, 35, 'assets/images/icon-lock.png', 0, 0, 0, tocolor (255, 255, 255, 255), false);
 
 					dxDrawText ('Slots bloqueados', 0, y + 28, self.target.elements.target.size.w, 34, tocolor (241, 241, 241, 255), 1, self.ui.fonts['medium']['target']['14'], 'center', 'center');
-					dxDrawText ('Serão desbloqueados 5 novos slots\nno seu inventário.', 0, y + 58, self.target.elements.target.size.w, 34, tocolor (241, 241, 241, 255), 1, self.ui.fonts['regular']['target']['12'], 'center', 'center');
+					dxDrawText ('Serão desbloqueados 5 novos slots\nno seu inventário.', 0, y + 58, self.target.elements.target.size.w, 34, tocolor (241, 241, 241, 255), 1, self.ui.fonts['regular']['target']['11'], 'center', 'center');
 
-					dxDrawImage (132, y + 105, 100, 23, 'assets/images/bg-button.png', 0, 0, 0, tocolor (241, 241, 241, 255), false);
-					dxDrawText ('Adquirir', 132, y + 105, 100, 22, tocolor (29, 29, 29, 255), 1, self.ui.fonts['regular']['target']['11'], 'center', 'center');
+					dxDrawImage (103, y + 105, 158, 30, 'assets/images/bg-button.png', 0, 0, 0, tocolor (241, 241, 241, 255), false);
+					dxDrawText ('Adquirir', 103, y + 105, 158, 29, tocolor (29, 29, 29, 255), 1, self.ui.fonts['medium']['target']['11'], 'center', 'center');
 				end
 			end
 			drawComponents ();
@@ -289,8 +289,8 @@ function Panel:onUpdate (current, index)
 	local sizeW, sizeH = self.target.elements.scroll.size.w, self.target.elements.scroll.size.h;
 
 	local ratio = (sizeH - resp (self.target.total));
-	if (ratio < resp (self.target.update)) then
-		ratio = resp (self.target.update);
+	if (ratio < 75) then
+		ratio = 75;
 	elseif (ratio > sizeH) then
 		ratio = sizeH;
 	end
