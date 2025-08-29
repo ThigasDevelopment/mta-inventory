@@ -31,7 +31,7 @@ function Panel:constructor ()
 			end
 
 			local cx, cy = getCursorPosition ();
-			self.x, self.y = (cx * self.ui.w), (cy * self.ui.h);
+			self.x, self.y = (cx * UI.w), (cy * UI.h);
 
 			return true;
 		end,
@@ -122,6 +122,9 @@ function Panel:onRender ()
 	local x, y, w, h = self.ui.positions['background'].x, self.ui.positions['background'].y, self.ui.positions['background'].w, self.ui.positions['background'].h;
 	dxDrawImage (x, y, w, h, 'assets/images/bg.png', 0, 0, 0, tocolor (255, 255, 255, 255 * alpha), false);
 
+	dxDrawImage (self.ui.positions['ball'].x, self.ui.positions['ball'].y, self.ui.positions['ball'].w, self.ui.positions['ball'].h, 'assets/images/ball.png', 0, 0, 0, tocolor (255, 255, 255, 255 * alpha), false);
+	dxDrawText ('Inventário', self.ui.positions['title'].x, self.ui.positions['title'].y, self.ui.positions['title'].w, self.ui.positions['title'].h, tocolor (241, 241, 241, 255 * alpha), 1, self.ui.fonts['regular']['default']['14'], 'left', 'center');
+
 	local target = self.target.elements.target.element;
 	if (not isElement (target)) then
 		return false;
@@ -204,6 +207,7 @@ function Panel:close ()
 	end
 	destroyRenderTarget ();
 
+	showCursor (false);
 	return true;
 end
 
@@ -235,6 +239,8 @@ function Panel:toggle (state)
 			return true;
 		end
 		createRenderTarget ();
+
+		showCursor (true);
 
 		self.animation.from, self.animation.to = 0, 1;
 		self.animation.tick = tickNow;

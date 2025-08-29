@@ -57,6 +57,22 @@ function UI:constructor ()
 		h = resp (460),
 	};
 
+	self.positions['ball'] = {
+		x = (self.positions['background'].x + resp (12)),
+		y = (self.positions['background'].y + resp (18)),
+
+		w = resp (12),
+		h = resp (12),
+	};
+
+	self.positions['title'] = {
+		x = (self.positions['ball'].x + resp (18)),
+		y = (self.positions['background'].y - resp (1)),
+
+		w = resp (71),
+		h = resp (44),
+	};
+
 	return self;
 end
 
