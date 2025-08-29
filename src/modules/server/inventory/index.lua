@@ -42,9 +42,36 @@ function Inventory:sync (to, from)
 	ownerId = tostring (ownerId);
 
 	local inventory = call ('database', 'get', 'all', ownerId);
-	call ('request', 'send', to, 'inventory', 'sync', inventory);
+	call ('request', 'send', 'inventory', 'sync', to, inventory);
 
 	return true;
+end
+
+function Inventory:request (player)
+	if (not isElement (player)) then
+		return flase;
+	end
+
+	local ownerId = getOwnerId (player);
+	if (not ownerId) then
+		return false;
+	end
+	ownerId = tostring (ownerId);
+
+	local inventory = call ('database', 'get', 'inventory', ownerId);
+	if (not inventory) then
+		return call ('database', 'create', ownerId,
+			function (success, ownerId, player)
+				if (not success) then
+					return CONFIG.utils.server:notify (player, 'Failed to create your inventory on database, contact an Administrator.', 'error');
+				end
+
+				return self:sync (player, player);
+			end, player
+		);
+	end
+
+	return self:sync (player, player);
 end
 
 -- event's resource's

@@ -18,7 +18,42 @@ end
 function Inventory:constructor ()
 	register ('inventory', execute);
 
+	self.slots, self.total = { }, 0;
+	self.items = { };
+
 	return self;
+end
+
+function Inventory:sync (data)
+	if (not self.data) then
+		self.data = { };
+	end
+
+	self.data, self.items = data.inventory, data.items;
+
+	local function createSlots ()
+		local size, padding = 65, 10;
+		self.slots = { };
+
+		local total = (self.data.slots + 10);
+		for i = 1, total do
+			local col, row = ((i - 1) % 5), math.floor ((i - 1) / 5);
+			self.slots[#self.slots + 1] = {
+				x = 0 + (size + padding) * col,
+				y = 0 + (size + padding) * row,
+
+				size = size,
+			};
+		end
+
+		return true;
+	end
+	createSlots ();
+
+	local panel = call ('panel');
+	panel:onUpdate (panel.target.offset, false);
+	
+	return true;
 end
 
 -- event's resource's

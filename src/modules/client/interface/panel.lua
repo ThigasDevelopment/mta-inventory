@@ -169,6 +169,25 @@ function Panel:onRender ()
 	dxDrawImage (self.ui.positions['ball'].x, self.ui.positions['ball'].y, self.ui.positions['ball'].w, self.ui.positions['ball'].h, 'assets/images/ball.png', 0, 0, 0, tocolor (241, 241, 241, 225 * alpha), false);
 	dxDrawText ('Inventário', self.ui.positions['title'].x, self.ui.positions['title'].y, self.ui.positions['title'].w, self.ui.positions['title'].h, tocolor (241, 241, 241, 255 * alpha), 1, self.ui.fonts['medium']['default']['13'], 'left', 'center');
 
+	local inventory = call ('inventory');
+	if (not inventory.data) then
+		if (not self.loading) then
+			self.loading = 0;
+		end
+		self.loading = (self.loading + 1);
+		if (self.loading > 360) then
+			self.loading = 0;
+		end
+
+		dxDrawImage (self.ui.positions['loading'].x + resp (19), self.ui.positions['loading'].y, resp (140), resp (140), 'assets/images/effect-loading.png', self.loading, 0, 0, tocolor (255, 255, 255, 255 * alpha), false);
+		dxDrawText ('Carregando seu inventário,\npor favor aguarde.', self.ui.positions['loading'].x, self.ui.positions['loading'].y + resp (140), self.ui.positions['loading'].w, resp (65), tocolor (241, 241, 241, 255 * alpha), 1, self.ui.fonts['medium']['default']['13'], 'center', 'center');
+
+		return true;
+	end
+
+	dxDrawText (('%.1f'):format (inventory.total) .. '/' .. ('%.1f'):format (inventory.data.weight) .. 'kg', x + resp (163), y, resp (226), self.ui.positions['title'].h, tocolor (241, 241, 241, 255 * alpha), 1, self.ui.fonts['regular']['default']['10'], 'right', 'center');
+	self.loading = nil;
+
 	local target = self.target.elements.target.element;
 	if (not isElement (target)) then
 		return false;
@@ -219,27 +238,42 @@ function Panel:onUpdate (current, index)
 	local posY = 0;
 	current = (current or 0);
 
+	local start = false;
+	
 	dxSetRenderTarget (target, true);
 		dxSetBlendMode ('modulate_add');
 			local function drawComponents ()
+				local inventory = call ('inventory');
 				self.target.positions = { };
 
-				local slots = 30;
-				for i = 1, slots do
-					local col, row = ((i - 1) % 5), math.floor ((i - 1) / 5);
+				local slots = inventory.slots;
+				for i = 1, #slots do
+					local slot = slots[i];
+					if (slot) then
+						local x, y, size, slot = slot.x, slot.y, slot.size, tostring (i);
 
-					local x, y = 0 + (65 + 10) * col, 0 + (65 + 10) * row;
-					if ((y - current) > -65 and (y - current) < self.target.elements.target.size.h) then
-						dxDrawImage (x, y - current, 65, 65, 'assets/images/bg-slot.png', 0, 0, 0, tocolor (255, 255, 255, 95), false);
+						if ((y - current) > -size and (y - current) < self.target.elements.target.size.h) then
+							local path = (i > inventory.data.slots) and 'assets/images/bg-slot-locked.png' or 'assets/images/bg-slot.png';
+							dxDrawImage (x, y - current, size, size, path, 0, 0, 0, tocolor (241, 241, 241, 95), false);
 
-						self.target.positions[#self.target.positions + 1] = { id = i, position = { x, y, 65, 65 } };
-					end
-
-					if (i >= slots) then
-						posY = (posY + (65 + 10) * (row + 1));
+							self.target.positions[#self.target.positions + 1] = { id = slot, position = { x, y, size, size } };
+						end
 					end
 				end
-				posY = (posY - 10);
+
+				local total = (slots[#slots].y + slots[#slots].size);
+				posY = total;
+
+				local y = (posY - 133) - current;
+				if (y < self.target.elements.target.size.h) then
+					dxDrawImage (167, y, 35, 35, 'assets/images/icon-lock.png', 0, 0, 0, tocolor (255, 255, 255, 255), false);
+
+					dxDrawText ('Slots bloqueados', 0, y + 28, self.target.elements.target.size.w, 34, tocolor (241, 241, 241, 255), 1, self.ui.fonts['medium']['target']['14'], 'center', 'center');
+					dxDrawText ('Serão desbloqueados 5 novos slots\nno seu inventário.', 0, y + 58, self.target.elements.target.size.w, 34, tocolor (241, 241, 241, 255), 1, self.ui.fonts['regular']['target']['12'], 'center', 'center');
+
+					dxDrawImage (132, y + 105, 100, 23, 'assets/images/bg-button.png', 0, 0, 0, tocolor (241, 241, 241, 255), false);
+					dxDrawText ('Adquirir', 132, y + 105, 100, 22, tocolor (29, 29, 29, 255), 1, self.ui.fonts['regular']['target']['11'], 'center', 'center');
+				end
 			end
 			drawComponents ();
 		dxSetBlendMode ('blend');
@@ -322,6 +356,8 @@ function Panel:toggle (state)
 			addEventHandler ('onClientRender', root, self.events['__onClientRender__']);
 			addEventHandler ('onClientRestore', root, self.events['__onClientRestore__']);
 
+			call ('request', 'send', 'inventory', 'request');
+
 			self.events['__state'] = true;
 		end
 
@@ -334,8 +370,6 @@ function Panel:toggle (state)
 			self.target.elements.target.element = dxCreateRenderTarget (sizeW, sizeH, true);
 
 			self.target.total, self.target.offset = 0, 0;
-
-			self:onUpdate (self.target.offset, false);
 			return true;
 		end
 		createRenderTarget ();

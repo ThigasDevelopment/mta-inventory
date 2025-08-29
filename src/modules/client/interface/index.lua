@@ -42,10 +42,11 @@ function UI:constructor ()
 	self.fonts['regular'] = {
 		['target'] = {
 			['11'] = dxCreateFont ('assets/fonts/regular.ttf', 11, false),
-			['12'] = dxCreateFont ('assets/fonts/regular.ttf', 12, false),
+			['12'] = dxCreateFont ('assets/fonts/regular.ttf', 11, false, 'antialiased'),
 		},
 		
 		['default'] = {
+			['10'] = dxCreateFont ('assets/fonts/regular.ttf', resp (10), false),
 			['12'] = dxCreateFont ('assets/fonts/regular.ttf', resp (12), false),
 			['14'] = dxCreateFont ('assets/fonts/regular.ttf', resp (14), false),
 		},
@@ -73,6 +74,14 @@ function UI:constructor ()
 
 		w = resp (71),
 		h = resp (43),
+	};
+
+	self.positions['loading'] = {
+		x = (self.positions['background'].x + resp (100)),
+		y = (self.positions['background'].y + resp (93)),
+
+		w = resp (179),
+		h = resp (205),
 	};
 
 	self.positions['target'] = {
