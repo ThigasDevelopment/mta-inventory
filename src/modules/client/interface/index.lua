@@ -45,7 +45,7 @@ function UI:constructor ()
 
 	self.positions['background'] = {
 		x = (self.w - resp (400)) / 2,
-		y = (self.h - resp (460)) / 2,
+		y = (self.h - resp (460)) - resp (80),
 
 		w = resp (400),
 		h = resp (460),
