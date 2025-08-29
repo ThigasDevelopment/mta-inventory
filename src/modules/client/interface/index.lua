@@ -21,25 +21,25 @@ function UI:constructor ()
 	self.w, self.h = guiGetScreenSize ();
 	self.scale = math.max (0.85, self.h / 1080);
 
-	self.fonts = {
-		['medium'] = {
-			['target'] = {
-				['14'] = dxCreateFont ('assets/fonts/medium.ttf', 14, false),
-			},
+	self.fonts = { };
 
-			['default'] = { },
+	self.fonts['medium'] = {
+		['target'] = {
+			['14'] = dxCreateFont ('assets/fonts/medium.ttf', 14, false),
 		},
 
-		['regular'] = {
-			['target'] = {
-				['11'] = dxCreateFont ('assets/fonts/regular.ttf', 11, false),
-				['12'] = dxCreateFont ('assets/fonts/regular.ttf', 12, false),
-			},
-			
-			['default'] = {
-				['12'] = dxCreateFont ('assets/fonts/regular.ttf', resp (12), false),
-				['14'] = dxCreateFont ('assets/fonts/regular.ttf', resp (14), false),
-			},
+		['default'] = { },
+	};
+
+	self.fonts['regular'] = {
+		['target'] = {
+			['11'] = dxCreateFont ('assets/fonts/regular.ttf', 11, false),
+			['12'] = dxCreateFont ('assets/fonts/regular.ttf', 12, false),
+		},
+		
+		['default'] = {
+			['12'] = dxCreateFont ('assets/fonts/regular.ttf', resp (12), false),
+			['14'] = dxCreateFont ('assets/fonts/regular.ttf', resp (14), false),
 		},
 	};
 
