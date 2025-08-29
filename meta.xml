@@ -12,6 +12,8 @@
 	<!-- SCRIPT's MODULE's -->
 	<script src = 'src/modules/server/**/*.lua'/>
 	<script src = 'src/modules/client/**/*.lua' type = 'client' cache = 'false'/>
+	<!-- ASSET's FONT's -->
+	<file src = 'assets/fonts/*.ttf'/>
 	<!-- VERSION's RESOURCE's -->
 	<min_mta_version server = '1.6.0' client = '1.6.0'/>
 	<!-- EXPORT's RESOURCE's -->
