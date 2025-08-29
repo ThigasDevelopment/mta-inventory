@@ -35,7 +35,7 @@ function Inventory:sync (data)
 		local size, padding = 65, 10;
 		self.slots = { };
 
-		local total = (self.data.slots + 10);
+		local total = math.min (CONFIG.default.slots.max, (self.data.slots + 10));
 		for i = 1, total do
 			local col, row = ((i - 1) % 5), math.floor ((i - 1) / 5);
 			self.slots[#self.slots + 1] = {
@@ -65,7 +65,7 @@ function Inventory:sync (data)
 				self.total = (self.total + current);
 			end
 		end
-		
+
 		return true;
 	end
 	getCurrentWeight ();

@@ -237,8 +237,6 @@ function Panel:onUpdate (current, index)
 
 	local posY = 0;
 	current = (current or 0);
-
-	local start = false;
 	
 	dxSetRenderTarget (target, true);
 		dxSetBlendMode ('modulate_add');
@@ -265,14 +263,14 @@ function Panel:onUpdate (current, index)
 				posY = total;
 
 				local y = (posY - 133) - current;
-				if (y < self.target.elements.target.size.h) then
-					dxDrawImage (167, y, 35, 35, 'assets/images/icon-lock.png', 0, 0, 0, tocolor (255, 255, 255, 255), false);
+				if (y < self.target.elements.target.size.h) and (#slots > inventory.data.slots) then
+					dxDrawImage (167, y - 5, 35, 35, 'assets/images/icon-lock.png', 0, 0, 0, tocolor (255, 255, 255, 255), false);
 
-					dxDrawText ('Slots bloqueados', 0, y + 28, self.target.elements.target.size.w, 34, tocolor (241, 241, 241, 255), 1, self.ui.fonts['medium']['target']['14'], 'center', 'center');
-					dxDrawText ('Serão desbloqueados 5 novos slots\nno seu inventário.', 0, y + 58, self.target.elements.target.size.w, 34, tocolor (241, 241, 241, 255), 1, self.ui.fonts['regular']['target']['11'], 'center', 'center');
+					dxDrawText ('Slots bloqueados', 0, y + 24, self.target.elements.target.size.w, 34, tocolor (241, 241, 241, 255), 1, self.ui.fonts['medium']['target']['14'], 'center', 'center');
+					dxDrawText ('Serão desbloqueados 5 novos slots\nno seu inventário.', 0, y + 54, self.target.elements.target.size.w, 34, tocolor (241, 241, 241, 255), 1, self.ui.fonts['regular']['target']['11'], 'center', 'center');
 
-					dxDrawImage (103, y + 105, 158, 30, 'assets/images/bg-button.png', 0, 0, 0, tocolor (241, 241, 241, 255), false);
-					dxDrawText ('Adquirir', 103, y + 105, 158, 29, tocolor (29, 29, 29, 255), 1, self.ui.fonts['medium']['target']['11'], 'center', 'center');
+					dxDrawImage (103, y + 95, 158, 30, 'assets/images/bg-button.png', 0, 0, 0, tocolor (241, 241, 241, 255), false);
+					dxDrawText ('Adquirir', 103, y + 95, 158, 28, tocolor (29, 29, 29, 255), 1, self.ui.fonts['medium']['target']['11'], 'center', 'center');
 				end
 			end
 			drawComponents ();
@@ -287,15 +285,12 @@ function Panel:onUpdate (current, index)
 	end
 
 	local sizeW, sizeH = self.target.elements.scroll.size.w, self.target.elements.scroll.size.h;
+	self.target.update = math.max (0, math.min (65, (self.target.total / 65)));
 
 	local ratio = (sizeH - resp (self.target.total));
-	if (ratio < 75) then
-		ratio = 75;
-	elseif (ratio > sizeH) then
-		ratio = sizeH;
-	end
-	self.target.elements.scroll.element = Scrollbar.new (sizeW, sizeH, ratio, 0, self.target.total);
+	ratio = math.max (75, math.min (sizeH, ratio));
 
+	self.target.elements.scroll.element = Scrollbar.new (sizeW, sizeH, ratio, 0, self.target.total);
 	return true;
 end
 
