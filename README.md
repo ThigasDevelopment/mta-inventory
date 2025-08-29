@@ -55,7 +55,7 @@ local gived = exports['mta-inventory']:give (getRandomPlayer (), 'ak47', 1, { bl
 if (gived) then
 	return print 'Item received with success.';
 end
-return print 'Failed to receive item, check params'.
+return print 'Failed to receive item, check params';
 ```
 
 ---
