@@ -68,8 +68,6 @@ function Scrollbar:draw (x, y, color, postGUI)
 		local _, cursorY = getCursorPosition ();
 		cursorY = ((cursorY * screenH) - (y + (self.lastY - y)));
 
-		print (cursorY);
-
 		local total = (h - size);
 		self.offset = (cursorY < 0 and 0 or cursorY > total and total or cursorY);
 	end
