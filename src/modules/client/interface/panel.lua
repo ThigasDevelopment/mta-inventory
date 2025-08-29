@@ -253,7 +253,12 @@ function Panel:onUpdate (current, index)
 						if ((y - current) > -size and (y - current) < self.target.elements.target.size.h) then
 							local path = (i > inventory.data.slots) and 'assets/images/bg-slot-locked.png' or 'assets/images/bg-slot.png';
 							dxDrawImage (x, y - current, size, size, path, 0, 0, 0, tocolor (241, 241, 241, 95), false);
-							dxDrawText (slot, x, y - current, size, size, tocolor (255, 255, 255, 255), 1, self.ui.fonts['medium']['target']['11'], 'center', 'center');
+
+							local data = inventory.items[slot];
+							if (data) and (i < inventory.data.slots) then
+								local config = ITEMS[data.item];
+								dxDrawImage (x + 7, y + 7 - current, 50, 50, config.icon, 0, 0, 0, tocolor (255, 255, 255, 255), false);
+							end
 
 							self.target.positions[#self.target.positions + 1] = { id = slot, type = 'slot', position = { x, y, size, size } };
 						end
