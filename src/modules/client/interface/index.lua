@@ -42,6 +42,7 @@ function UI:constructor ()
 
 	self.fonts['regular'] = {
 		['target'] = {
+			['7'] = dxCreateFont ('assets/fonts/regular.ttf', 7, false, 'antialiased'),
 			['11'] = dxCreateFont ('assets/fonts/regular.ttf', 11, false, 'antialiased'),
 		},
 		

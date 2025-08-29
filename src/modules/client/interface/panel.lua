@@ -235,13 +235,17 @@ function Panel:onUpdate (current, index)
 		return false;
 	end
 
+	local inventory = call ('inventory');
+	if (not inventory.data) then
+		return false;
+	end
+
 	local posY = 0;
 	current = (current or 0);
 	
 	dxSetRenderTarget (target, true);
 		dxSetBlendMode ('modulate_add');
 			local function drawComponents ()
-				local inventory = call ('inventory');
 				self.target.positions = { };
 
 				local slots = inventory.slots;
@@ -258,6 +262,7 @@ function Panel:onUpdate (current, index)
 							if (data) and (i < inventory.data.slots) then
 								local config = ITEMS[data.item];
 								dxDrawImage (x + 7, y + 7 - current, 50, 50, config.icon, 0, 0, 0, tocolor (255, 255, 255, 255), false);
+								dxDrawText (data.amount .. 'x', x, y - current, size - 7, size - 7, tocolor (241, 241, 241, 255), 1, self.ui.fonts['regular']['target']['7'], 'right', 'bottom');
 							end
 
 							self.target.positions[#self.target.positions + 1] = { id = slot, type = 'slot', position = { x, y, size, size } };
