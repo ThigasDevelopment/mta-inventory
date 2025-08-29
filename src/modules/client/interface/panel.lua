@@ -141,10 +141,14 @@ function Panel:onUpdate (current, index)
 	local posY = 0;
 	current = (current or 0);
 
-	local function drawComponents ()
+	dxSetRenderTarget (target, true);
+		dxSetBlendMode ('modulate_add');
+			local function drawComponents ()
 
-	end
-	drawComponents ();
+			end
+			drawComponents ();
+		dxSetBlendMode ('blend');
+	dxSetRenderTarget ();
 
 	self.target.total, self.target.offset = (posY - self.target.elements.target.size.h), current;
 
