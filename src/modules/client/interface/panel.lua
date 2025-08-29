@@ -76,6 +76,8 @@ function Panel:constructor ()
 
 		update = 30,
 		offset = 0,
+
+		positions = { },
 	};
 
 	self.events = {
@@ -136,6 +138,10 @@ function Panel:onKey (key, press)
 	end
 
 	local current = scroll:get ();
+	if (not current) then
+		return false;
+	end
+
 	if (key == 'mouse_wheel_up') then
 		scroll:set (math.max (0, (current - self.target.update)));
 	elseif (key == 'mouse_wheel_down') then
@@ -160,7 +166,7 @@ function Panel:onRender ()
 	dxDrawImage (x, y, w, h, 'assets/images/bg.png', 0, 0, 0, tocolor (255, 255, 255, 255 * alpha), false);
 
 	dxDrawImage (self.ui.positions['ball'].x, self.ui.positions['ball'].y, self.ui.positions['ball'].w, self.ui.positions['ball'].h, 'assets/images/ball.png', 0, 0, 0, tocolor (255, 255, 255, 255 * alpha), false);
-	dxDrawText ('Inventário', self.ui.positions['title'].x, self.ui.positions['title'].y, self.ui.positions['title'].w, self.ui.positions['title'].h, tocolor (241, 241, 241, 255 * alpha), 1, self.ui.fonts['regular']['default']['14'], 'left', 'center');
+	dxDrawText ('Inventário', self.ui.positions['title'].x, self.ui.positions['title'].y, self.ui.positions['title'].w, self.ui.positions['title'].h, tocolor (241, 241, 241, 255 * alpha), 1, self.ui.fonts['regular']['default']['14'], 'left', 'top');
 
 	local target = self.target.elements.target.element;
 	if (not isElement (target)) then
@@ -189,6 +195,15 @@ function Panel:onRender ()
 
 	if (inRenderTarget) then
 		self.target.can_scroll = true;
+
+		for _, button in pairs (self.target.positions) do
+			local inButton = isCursorOnElement (self.ui.positions['target'].x + button.position[1], self.ui.positions['target'].y + button.position[2] - self.target.offset, button.position[3], button.position[4]);
+			if (inButton) then
+				local id = button.id;
+
+				break;
+			end
+		end
 	end
 
 	return true;
@@ -206,13 +221,19 @@ function Panel:onUpdate (current, index)
 	dxSetRenderTarget (target, true);
 		dxSetBlendMode ('modulate_add');
 			local function drawComponents ()
-				dxDrawRectangle (0, 0, self.target.elements.target.size.w, self.target.elements.target.size.h, tocolor (255, 0, 0, 55), false);
+				self.target.positions = { };
 
-				local slots = 40;
+				local slots = 30;
 				for i = 1, slots do
 					local col, row = ((i - 1) % 5), math.floor ((i - 1) / 5);
-					dxDrawRectangle (0 + (65 + 10) * col, 0 + (65 + 10) * row - current, 65, 65, tocolor (255, 255, 255, 255), false);
-					dxDrawText (i, 0 + (65 + 10) * col, 0 + (65 + 10) * row - current, 65, 65, tocolor (0, 0, 0, 255), 1, 'default', 'center', 'center');
+
+					local x, y = 0 + (65 + 10) * col, 0 + (65 + 10) * row;
+					if ((y - current) > -65 and (y - current) < self.target.elements.target.size.h) then
+						dxDrawRectangle (x, y - current, 65, 65, tocolor (255, 255, 255, 255), false);
+						dxDrawText (i, x, y - current, 65, 65, tocolor (0, 0, 0, 255), 1, 'default', 'center', 'center');
+
+						self.target.positions[#self.target.positions + 1] = { id = i, position = { x, y, 65, 65 } };
+					end
 
 					if (i >= slots) then
 						posY = (posY + (65 + 10) * (row + 1));

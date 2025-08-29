@@ -25,7 +25,7 @@ function UI:constructor ()
 	register ('ui', execute);
 
 	self.w, self.h = guiGetScreenSize ();
-	self.scale = math.max (0.85, self.h / 1080);
+	self.scale = math.max (0.65, self.h / 1080);
 
 	self.fonts, self.positions = { }, { };
 
@@ -67,10 +67,10 @@ function UI:constructor ()
 
 	self.positions['title'] = {
 		x = (self.positions['ball'].x + resp (18)),
-		y = (self.positions['background'].y - resp (1)),
+		y = (self.positions['ball'].y - resp (5)),
 
 		w = resp (71),
-		h = resp (44),
+		h = self.positions['ball'].w,
 	};
 
 	self.positions['target'] = {
