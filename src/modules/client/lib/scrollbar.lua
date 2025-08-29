@@ -8,6 +8,9 @@ instance.items, instance.total = { }, 0;
 
 instance.current, instance.state = false, false;
 
+-- util's lib's
+local screenW, screenH = guiGetScreenSize ();
+
 -- method's lib's
 function Scrollbar.new (w, h, size, min, max)
 	local self = setmetatable ({ }, Scrollbar);
@@ -63,14 +66,14 @@ function Scrollbar:draw (x, y, color, postGUI)
 	local state = self.state;
 	if (state) then
 		local _, cursorY = getCursorPosition ();
-		cursorY = (cursorY - y);
+		cursorY = ((cursorY * screenH) - y);
 
 		local total = (h - self.size);
 		self.offset = (cursorY < 0 and 0 or cursorY > total and total or cursorY);
 	end
 
-	dxDrawRectangle (x, y, w, h, color.background, postGUI);
-	dxDrawRectangle (x, y + self.offset, w, self.size, (state and color.effect or color.default), postGUI);
+	dxDrawImage (x, y, w, h, 'assets/images/bg-scroll.png', 0, 0, 0, color.background, postGUI);
+	dxDrawImage (x, y + self.offset, w, self.size, 'assets/images/bg-scroll.png', 0, 0, 0, ((state or inScroll) and color.effect or color.default), postGUI);
 	return true;
 end
 
