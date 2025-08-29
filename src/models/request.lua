@@ -28,8 +28,6 @@ function Request:constructor ()
 	return self;
 end
 
-local count = 0;
-
 function Request:send (module, method, ...)
 	local isClient = (EVENT_SIDE == 'onClient');
 	if (isClient) then
