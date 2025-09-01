@@ -48,8 +48,6 @@ function Inventory:sync (to, from)
 end
 
 function Inventory:update (player, items)
-	print 'CHEGOU AQ'
-
 	if (not isElement (player)) then
 		return false;
 	end
@@ -70,22 +68,93 @@ function Inventory:update (player, items)
 		return false;
 	end
 
-	local success = table.key (items,
-		function (slot, data)
-			local match = false;
+	local cache = {
+		items = { },
+		slots = { },
+	};
+	for key, item in pairs (ownerItems) do
+		cache.items[item.item] = item;
+		cache.slots[key] = toJSON (item);
+	end
 
-			for ownerSlot, ownerData in pairs (ownerItems) do
-				if (data.item ~= ownerData.item) then
-					match = data.item;
+	local function validate ()
+		local matched, values = false, false;
+
+		for slot, data in pairs (items) do
+			if (not cache.items[data.item]) then
+				matched = data.item;
+
+				break
+			end
+
+			local diff = table.key (cache.items[data.item],
+				function (key, value)
+					local parse = data[key];
+					if (not parse) then
+						return true;
+					end
+
+					local valueType = type (value);
+					if (valueType == 'table') then
+						value = toJSON (value);
+					end
+
+					local parseType = type (parse);
+					if (parseType == 'table') then
+						parse = toJSON (parse);
+					end
+
+					if (parse ~= value) then
+						return true;
+					end
+
+					return false;
+				end
+			);
+			
+			if (diff) then
+				matched = data.item;
+
+				break
+			end
+
+			if (not ownerItems[slot]) then
+				if (tonumber (slot) > inventory.slots) then
+					matched = data.item;
 
 					break
 				end
-			end
-			return match;
-		end
-	);
-	print (success, getTickCount ());
 
+				values = { id = data.id, slot = slot };
+			end
+
+			local json = toJSON (data);
+			if (cache.slots[slot] ~= json) then
+				if (not values) then
+					values = { };
+				end
+
+				values[#values + 1] = { id = data.id, slot = slot };
+			end
+		end
+
+		return matched, values;
+	end
+
+	local parsed, values = validate ();
+	if (parsed) then
+		return false;
+	end
+
+	if (not values) then
+		return false;
+	end
+
+	if (type (values) ~= 'table') then
+		return false;
+	end
+
+	call ('database', 'update', 'allItems', ownerId, values, items);
 	return true;
 end
 

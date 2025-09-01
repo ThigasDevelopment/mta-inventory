@@ -195,14 +195,18 @@ function Panel:onClick (button, state, x, y)
 				return false, true;
 			end
 
+			local items = inventory.items;
 			if (not new) then
-				local items = inventory.items;
 				items[options.slot], items[slot] = nil, old;
 
 				inventory:sync ({ inventory = inventory.data, items = items }, true);
 				return true, false;
 			end
 
+			items[options.slot], items[slot] = nil, nil;
+			items[options.slot], items[slot] = new, old;
+
+			inventory:sync ({ inventory = inventory.data, items = items }, true);
 			return true, false;
 		end
 

@@ -10,7 +10,7 @@ local ITEMS = {
 
 	['pizza'] = {
 		name = 'Pizza',
-		icon = 'assets/images/icons/ak47.png',
+		icon = 'assets/images/icons/pizza.png',
 		description = 'Rifle de Assalto com munição 7.62mm',
 
 		weight = 3.5,

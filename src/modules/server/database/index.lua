@@ -152,6 +152,91 @@ function Database:get (schema, ...)
 	return (self.data[schema][ownerId] or false);
 end
 
+function Database:update (schema, ownerId, ...)
+	if (not isElement (self.connection)) then
+		return false;
+	end
+
+	local schemaType = type (schema);
+	if (schemaType ~= 'string') then
+		return false;
+	end
+
+	local ownerType = type (ownerId);
+	if (ownerType ~= 'string') then
+		return false;
+	end
+
+	if (schema == 'allItems') then
+		local values, items = ...;
+		if (not values) then
+			return false;
+		end
+
+		if (type (values) ~= 'table') then
+			return false;
+		end
+
+		if (table.size (items) < 1) then
+			return false;
+		end
+
+		if (#values == 2) then
+			local old, new = items[values[1].slot], items[values[2].slot];
+			self.data['items'][ownerId][values[1].slot], self.data['items'][ownerId][values[2].slot] = nil, nil;
+			
+			dbExec (self.connection, 'UPDATE `items` SET `slot` = ? WHERE `id` = ? AND `owner` = ?;', values[1].slot, old.id, ownerId);
+			dbExec (self.connection, 'UPDATE `items` SET `slot` = ? WHERE `id` = ? AND `owner` = ?;', values[2].slot, new.id, ownerId);
+
+			self.data['items'][ownerId][values[1].slot], self.data['items'][ownerId][values[2].slot] = old, new;
+			return true;
+		end
+
+		local id = values.id;
+		if (not id) then
+			return false;
+		end
+
+		local old = false;
+		for slot, data in pairs (self.data['items'][ownerId]) do
+			if (data.id == id) then
+				old = slot;
+
+				break
+			end
+		end
+
+		dbExec (self.connection, 'UPDATE `items` SET `slot` = ? WHERE `id` = ? AND `owner` = ?;', values.slot, id, ownerId);
+
+		local item = self.data['items'][ownerId][old];
+		self.data['items'][ownerId][old] = nil;
+
+		self.data['items'][ownerId][values.slot] = item;
+		return true;
+	end
+
+	local schema = self.data[schema];
+	if (not schema) then
+		return false;
+	end
+
+	local id, key, value = ...;
+	if (not id) or (not key) or (not value) then
+		return false;
+	end
+	
+	local valueType = type (value);
+	if (valueType == 'table') then
+		value = toJSON (value);
+	end
+
+	if (value == 'id') then
+		return false;
+	end
+
+	return true;
+end
+
 function Database:create (ownerId, callback, ...)
 	if (not isElement (self.connection)) then
 		return false;
