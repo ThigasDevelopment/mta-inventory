@@ -87,6 +87,10 @@ function Panel:constructor ()
 			return self:onKey (key, press);
 		end,
 
+		['__onClientClick__'] = function (button, state)
+			return self:onClick (button, state);
+		end,
+
 		['__onClientRender__'] = function ()
 			return self:onRender ();
 		end,
@@ -148,6 +152,28 @@ function Panel:onKey (key, press)
 		scroll:set (math.min (self.target.total, (current + self.target.update)));
 	end
 	return true;
+end
+
+function Panel:onClick (button, state)
+	if (button ~= 'left') then
+		return false;
+	end
+
+	local hover = self.hover;
+	if (not hover) then
+		return false;
+	end
+
+	if (state == 'up') then
+		
+		return true;
+	end
+
+	if (state == 'down') then
+
+		return true;
+	end
+	return false;
 end
 
 function Panel:onRender ()
@@ -217,9 +243,14 @@ function Panel:onRender ()
 		self.target.can_scroll = true;
 
 		for _, button in pairs (self.target.positions) do
-			local inButton = isCursorOnElement (self.ui.positions['target'].x + button.position[1], self.ui.positions['target'].y + button.position[2] - self.target.offset, button.position[3], button.position[4]);
+			local inButton = isCursorOnElement (self.ui.positions['target'].x + button.position[1], self.ui.positions['target'].y + button.position[2] - resp (self.target.offset), button.position[3], button.position[4]);
 			if (inButton) then
 				local id, type = button.id, button.type;
+				self.hover = {
+					id = id,
+					
+					type = type,
+				};
 
 				break
 			end
@@ -265,7 +296,7 @@ function Panel:onUpdate (current, index)
 								dxDrawText (data.amount .. 'x', x, y - current, size - 7, size - 7, tocolor (241, 241, 241, 255), 1, self.ui.fonts['regular']['target']['7'], 'right', 'bottom');
 							end
 
-							self.target.positions[#self.target.positions + 1] = { id = slot, type = 'slot', position = { x, y, size, size } };
+							self.target.positions[#self.target.positions + 1] = { id = slot, type = 'slot', position = { resp (x), resp (y), resp (size), resp (size) } };
 						end
 					end
 				end
@@ -283,7 +314,7 @@ function Panel:onUpdate (current, index)
 					dxDrawImage (103, y + 95, 158, 30, 'assets/images/bg-button.png', 0, 0, 0, tocolor (241, 241, 241, 255), false);
 					dxDrawText ('Adquirir', 103, y + 95, 158, 28, tocolor (29, 29, 29, 255), 1, self.ui.fonts['medium']['target']['11'], 'center', 'center');
 
-					table.insert (self.target.positions, 1, { id = 'buySlots', type = 'button', position = { 103, y + 95 + current, 158, 30 } });
+					table.insert (self.target.positions, 1, { id = 'buy:slots', type = 'button', position = { resp (103), resp (y + 95 + current), resp (158), resp (30) } });
 				end
 			end
 			drawComponents ();
@@ -323,9 +354,18 @@ function Panel:close ()
 	end
 
 	if (self.events['__state']) then
-		removeEventHandler ('onClientKey', root, self.events['__onClientKey__']);
-		removeEventHandler ('onClientRender', root, self.events['__onClientRender__']);
-		removeEventHandler ('onClientRestore', root, self.events['__onClientRestore__']);
+		local function unloadEvents ()
+			for event, callback in pairs (self.events) do
+				local name = event:gsub ('__', '');
+
+				local callbackType = type (callback);
+				if (callbackType == 'function') then
+					removeEventHandler (name, root, callback);
+				end
+			end
+			return true;
+		end
+		unloadEvents ();
 
 		self.events['__state'] = false;
 	end
@@ -360,9 +400,18 @@ function Panel:toggle (state)
 
 	if (self.state) then
 		if (not self.events['__state']) then
-			addEventHandler ('onClientKey', root, self.events['__onClientKey__']);
-			addEventHandler ('onClientRender', root, self.events['__onClientRender__']);
-			addEventHandler ('onClientRestore', root, self.events['__onClientRestore__']);
+			local function loadEvents ()
+				for event, callback in pairs (self.events) do
+					local name = event:gsub ('__', '');
+
+					local callbackType = type (callback);
+					if (callbackType == 'function') then
+						addEventHandler (name, root, callback);
+					end
+				end
+				return true;
+			end
+			loadEvents ();
 
 			call ('request', 'send', 'inventory', 'request');
 
