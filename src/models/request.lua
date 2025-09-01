@@ -68,6 +68,8 @@ function Request:response (module, method, ...)
 	end
 
 	call (module, method, client, ...);
+	self:send ('', '', client);
+	
 	return true;
 end
 

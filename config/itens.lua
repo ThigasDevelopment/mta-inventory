@@ -7,6 +7,14 @@ local ITEMS = {
 
 		weight = 3.5,
 	},
+
+	['pizza'] = {
+		name = 'Pizza',
+		icon = 'assets/images/icons/ak47.png',
+		description = 'Rifle de Assalto com munição 7.62mm',
+
+		weight = 3.5,
+	},
 };
 
 -- export's resource's

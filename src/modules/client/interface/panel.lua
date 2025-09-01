@@ -182,8 +182,12 @@ function Panel:onClick (button, state, x, y)
 			end
 
 			local slot = hover.id;
-			if (slot == options.slot) or (tonumber (slot) > inventory.data.slots) then
+			if (slot == options.slot) then
 				return false, true;
+			end
+
+			if (tonumber (slot) > inventory.data.slots) then
+				return CONFIG.utils.client:notify ('Você não possui esse slot [ ' .. slot .. ' ], adquira mais espaço no seu inventário.', 'error'), true;
 			end
 
 			local old, new = inventory.items[options.slot], inventory.items[slot];
@@ -195,7 +199,7 @@ function Panel:onClick (button, state, x, y)
 				local items = inventory.items;
 				items[options.slot], items[slot] = nil, old;
 
-				inventory:sync ({ inventory = inventory.data, items = items });
+				inventory:sync ({ inventory = inventory.data, items = items }, true);
 				return true, false;
 			end
 
@@ -291,7 +295,6 @@ function Panel:onRender ()
 
 		dxDrawImage (self.ui.positions['loading'].x + resp (19), self.ui.positions['loading'].y, resp (140), resp (140), 'assets/images/effect-loading.png', self.loading, 0, 0, tocolor (255, 255, 255, 255 * alpha), false);
 		dxDrawText ('Carregando seu inventário,\npor favor aguarde.', self.ui.positions['loading'].x, self.ui.positions['loading'].y + resp (140), self.ui.positions['loading'].w, resp (65), tocolor (241, 241, 241, 255 * alpha), 1, self.ui.fonts['medium']['default']['13'], 'center', 'center');
-
 		return true;
 	end
 
@@ -398,7 +401,7 @@ function Panel:onUpdate (current)
 							dxDrawImage (x, y - current, size, size, path, 0, 0, 0, tocolor (241, 241, 241, 95), false);
 
 							local data = inventory.items[slot];
-							if (data) and (i < inventory.data.slots) and (slot ~= options.slot) then
+							if (data) and (i <= inventory.data.slots) and (slot ~= options.slot) then
 								local config = ITEMS[data.item];
 								dxDrawImage (x + 7, y + 7 - current, 50, 50, config.icon, 0, 0, 0, tocolor (255, 255, 255, 255), false);
 								dxDrawText (data.amount .. 'x', x, y - current, size - 7, size - 7, tocolor (241, 241, 241, 255), 1, self.ui.fonts['regular']['target']['7'], 'right', 'bottom');

@@ -24,7 +24,7 @@ function Inventory:constructor ()
 	return self;
 end
 
-function Inventory:sync (data)
+function Inventory:sync (data, server)
 	if (not self.data) then
 		self.data = { };
 	end
@@ -72,7 +72,10 @@ function Inventory:sync (data)
 
 	local panel = call ('panel');
 	panel:onUpdate (panel.target.offset);
-	
+
+	if (server) then
+		call ('request', 'send', 'inventory', 'update', self.items);
+	end
 	return true;
 end
 

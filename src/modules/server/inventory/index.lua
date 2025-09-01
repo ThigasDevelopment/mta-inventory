@@ -47,9 +47,51 @@ function Inventory:sync (to, from)
 	return true;
 end
 
+function Inventory:update (player, items)
+	print 'CHEGOU AQ'
+
+	if (not isElement (player)) then
+		return false;
+	end
+
+	local ownerId = getOwnerId (player);
+	if (not ownerId) then
+		return false;
+	end
+	ownerId = tostring (ownerId);
+
+	local inventory = call ('database', 'get', 'inventory', ownerId);
+	if (not inventory) then
+		return false;
+	end
+
+	local ownerItems = call ('database', 'get', 'items', ownerId);
+	if (table.size (ownerItems) ~= table.size (items)) then
+		return false;
+	end
+
+	local success = table.key (items,
+		function (slot, data)
+			local match = false;
+
+			for ownerSlot, ownerData in pairs (ownerItems) do
+				if (data.item ~= ownerData.item) then
+					match = data.item;
+
+					break
+				end
+			end
+			return match;
+		end
+	);
+	print (success, getTickCount ());
+
+	return true;
+end
+
 function Inventory:request (player)
 	if (not isElement (player)) then
-		return flase;
+		return false;
 	end
 
 	local ownerId = getOwnerId (player);
