@@ -71,7 +71,7 @@ function Inventory:sync (data)
 	getCurrentWeight ();
 
 	local panel = call ('panel');
-	panel:onUpdate (panel.target.offset, false);
+	panel:onUpdate (panel.target.offset);
 	
 	return true;
 end

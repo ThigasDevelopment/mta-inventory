@@ -51,6 +51,8 @@ function Panel:constructor ()
 
 	self.hover, self.state = false, false;
 
+	self.options = { };
+
 	self.target = {
 		elements = {
 			scroll = {
@@ -83,12 +85,12 @@ function Panel:constructor ()
 	self.events = {
 		['__state'] = false,
 
-		['__onClientKey__'] = function (key, press)
-			return self:onKey (key, press);
+		['__onClientKey__'] = function (...)
+			return self:onKey (...);
 		end,
 
-		['__onClientClick__'] = function (button, state)
-			return self:onClick (button, state);
+		['__onClientClick__'] = function (...)
+			return self:onClick (...);
 		end,
 
 		['__onClientRender__'] = function ()
@@ -154,24 +156,106 @@ function Panel:onKey (key, press)
 	return true;
 end
 
-function Panel:onClick (button, state)
+function Panel:onClick (button, state, x, y)
 	if (button ~= 'left') then
 		return false;
 	end
 
-	local hover = self.hover;
-	if (not hover) then
-		return false;
-	end
+	local options = self.options;
+	self.options = false;
 
+	local hover = self.hover;
 	if (state == 'up') then
-		
-		return true;
+		if (not options) then
+			return false;
+		end
+
+		local function onMouseDrop ()
+			local inventory = call ('inventory');
+			if (not hover) then
+				return false, true;
+			end
+
+			local type = hover.type;
+			if (type ~= 'slot') then
+				return false, true;
+			end
+
+			local slot = hover.id;
+			if (slot == options.slot) or (tonumber (slot) > inventory.data.slots) then
+				return false, true;
+			end
+
+			local old, new = inventory.items[options.slot], inventory.items[slot];
+			if (not old) then
+				return false, true;
+			end
+
+			if (not new) then
+				local items = inventory.items;
+				items[options.slot], items[slot] = nil, old;
+
+				inventory:sync ({ inventory = inventory.data, items = items });
+				return true, false;
+			end
+
+			return true, false;
+		end
+
+		local state, update = onMouseDrop ();
+		if (update) then
+			self:onUpdate (self.target.offset);
+		end
+		return state;
 	end
 
 	if (state == 'down') then
+		if (not hover) then
+			return false;
+		end
 
-		return true;
+		local type = hover.type;
+		if (type == 'slot') then
+			local inventory = call ('inventory');
+			if (not inventory.data) then
+				return false;
+			end
+
+			local items = inventory.items;
+			if (table.size (items) < 1) then
+				return false;
+			end
+
+			local slot = hover.id;
+			if (not slot) then
+				return false;
+			end
+
+			local item = items[slot];
+			if (not item) then
+				return false;
+			end
+
+			self.options = {
+				slot = slot,
+				type = 'item',
+
+				default = {
+					x = hover.position.x,
+					y = hover.position.y,
+				},
+
+				position = {
+					x = (x - hover.position.x),
+					y = (y - hover.position.y),
+				};
+			};
+
+			self:onUpdate (self.target.offset);
+			return true;
+		end
+
+		return false;
 	end
 	return false;
 end
@@ -226,7 +310,7 @@ function Panel:onRender ()
 	if (scroll) then
 		local current = scroll:get ();
 		if (current ~= self.target.offset) then
-			self:onUpdate (current, false);
+			self:onUpdate (current);
 		end
 
 		scroll:draw (self.ui.positions['scroll'].x, self.ui.positions['scroll'].y, {
@@ -248,8 +332,12 @@ function Panel:onRender ()
 				local id, type = button.id, button.type;
 				self.hover = {
 					id = id,
-					
 					type = type,
+
+					position = {
+						x = self.ui.positions['target'].x + button.position[1],
+						y = self.ui.positions['target'].y + button.position[2] - resp (self.target.offset),
+					},
 				};
 
 				break
@@ -257,10 +345,25 @@ function Panel:onRender ()
 		end
 	end
 
+	local options = self.options;
+	if (options) then
+		local type = options.type;
+		if (type == 'item') then
+			local cursorX, cursorY, size = self.cursor.x, self.cursor.y, resp (50);
+			cursorX, cursorY = (cursorX - (options.default.x + (options.position.x - options.default.x))), (cursorY - (options.default.y + (options.position.y - options.default.y)));
+
+			local data = inventory.items[options.slot];
+			if (data) then
+				local config = ITEMS[data.item];
+				dxDrawImage (cursorX, cursorY, size, size, config.icon, 0, 0, 0, tocolor (255, 255, 255, 255 * alpha), true);
+			end
+		end
+	end
+
 	return true;
 end
 
-function Panel:onUpdate (current, index)
+function Panel:onUpdate (current)
 	local target = self.target.elements.target.element;
 	if (not isElement (target)) then
 		return false;
@@ -269,6 +372,11 @@ function Panel:onUpdate (current, index)
 	local inventory = call ('inventory');
 	if (not inventory.data) then
 		return false;
+	end
+
+	local options = self.options;
+	if (not options) then
+		options = { };
 	end
 
 	local posY = 0;
@@ -290,7 +398,7 @@ function Panel:onUpdate (current, index)
 							dxDrawImage (x, y - current, size, size, path, 0, 0, 0, tocolor (241, 241, 241, 95), false);
 
 							local data = inventory.items[slot];
-							if (data) and (i < inventory.data.slots) then
+							if (data) and (i < inventory.data.slots) and (slot ~= options.slot) then
 								local config = ITEMS[data.item];
 								dxDrawImage (x + 7, y + 7 - current, 50, 50, config.icon, 0, 0, 0, tocolor (255, 255, 255, 255), false);
 								dxDrawText (data.amount .. 'x', x, y - current, size - 7, size - 7, tocolor (241, 241, 241, 255), 1, self.ui.fonts['regular']['target']['7'], 'right', 'bottom');
@@ -345,7 +453,7 @@ function Panel:onRestore ()
 	end
 
 	local offset = self.target.offset;
-	return self:onUpdate (offset, false);
+	return self:onUpdate (offset);
 end
 
 function Panel:close ()
@@ -371,6 +479,8 @@ function Panel:close ()
 	end
 
 	local function destroyRenderTarget ()
+		self.options = false;
+
 		if (isElement (self.target.elements.target.element)) then
 			destroyElement (self.target.elements.target.element);
 		end
@@ -419,6 +529,8 @@ function Panel:toggle (state)
 		end
 
 		local function createRenderTarget ()
+			self.options = false;
+
 			if (isElement (self.target.elements.target.element)) then
 				destroyElement (self.target.elements.target.element);
 			end
